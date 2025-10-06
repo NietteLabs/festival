@@ -177,7 +177,7 @@ void HTS_Vocoder_initialize_me(HTS_Vocoder_ME * v_me,
 void HTS_Vocoder_synthesize_me(HTS_Vocoder_ME * v_me,
                                const int m, double lf0,
                                double *spectrum, double *strengths,
-                               size_t p, double *lpf,
+                               size_t nlpf, double *lpf,
                                double alpha,
                                double beta, double volume,
                                double *rawdata, HTS_Audio * audio)
@@ -188,7 +188,7 @@ void HTS_Vocoder_synthesize_me(HTS_Vocoder_ME * v_me,
     int k;
     short xs;
     int rawidx = 0;
-//    double p;
+    double p;
     HTS_Vocoder *v = v_me->v; /* access to original HTS_Vocoder struct */
     double xpulse;
     double xnoise;
@@ -206,13 +206,6 @@ void HTS_Vocoder_synthesize_me(HTS_Vocoder_ME * v_me,
         }
     }
 
-    /* lf0 -> pitch */
-    /*if (lf0 == LZERO)
-       p = 0.0;
-    else
-        p = v->rate / exp(lf0);
-
-    */
      if (lf0 == LZERO)
       p = 0.0;
    else if (lf0 <= MIN_LF0)
@@ -224,7 +217,7 @@ void HTS_Vocoder_synthesize_me(HTS_Vocoder_ME * v_me,
 
 /* first time */
     if (v->pitch_of_curr_point < 0.0) {
-        HTS_Vocoder_initialize_excitation(v, p, 0);
+        HTS_Vocoder_initialize_excitation(v, p, nlpf);
         if (v->stage == 0) {      /* for MCP */
             HTS_mc2b(spectrum, v->c, m, alpha);
         } else {                  /* for LSP */
